@@ -43,7 +43,7 @@
         <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
           <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="home">home</button>
           <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="search">search</button>
-          <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="table">table_chart</button>
+          <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" id ="data" aria-label="table">table_chart</button>
           <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="chart">show_chart</button>
         </section>
       </div>
@@ -77,16 +77,20 @@
         
       </div>
       <div class="view" id="table">
-        <h3>Confirmed Covid-19 Cases Per Day</h3>
+        <h3>Covid-19 Cases Per State</h3>
         <div class="mdc-data-table">
           <table class="mdc-data-table__table" aria-label="Dessert calories">
             <thead>
               <tr class="mdc-data-table__header-row">
-                <th class="mdc-data-table__header-cell keep" role="columnheader" scope="col"> Date </th>               
+                <th class="mdc-data-table__header-cell keep" role="columnheader" scope="col"> State </th>
+                <th class="mdc-data-table__header-cell keep" role="columnheader" scope="col"> Positive </th>
+                <th class="mdc-data-table__header-cell keep" role="columnheader" scope="col"> Recovered </th> 
               </tr>
             </thead>
             <tbody class="mdc-data-table__content">
               <tr class="mdc-data-table__row template">
+                <td class="mdc-data-table__cell mdc-data-table__cell--numeric template">Frozen yogurt</td>
+                <td class="mdc-data-table__cell mdc-data-table__cell--numeric template">Frozen yogurt</td>
                 <td class="mdc-data-table__cell mdc-data-table__cell--numeric template">Frozen yogurt</td>
               </tr>             
             </tbody>
@@ -112,9 +116,9 @@
       const nav_icons = document.querySelectorAll(".mdc-top-app-bar__action-item");      
       const api_endpoint = 'https://covidtracking.com/api/v1/states/current.json';
       const country_list = document.querySelector("datalist#countries");
-      const add_btn = document.querySelector('button#add'); 
+      const table_btn = document.querySelector('button#data'); 
       const graph_btn = document.querySelector('button#graph'); 
-   
+      
       const hide = () => {
         document.querySelectorAll(".view").forEach(item => {
           item.style.display = "none";
@@ -148,12 +152,36 @@
            })
         });
       
-      // Find some old friends
-	    const oldFriends = db.states
-        .where('positive').above(75)
+      // array of data from the db
+	    const state_arr = db.states
         .toArray();
-      console.log(oldFriends);
       
+      
+      // add dates with date as ID
+      const add_state_info = () => {
+        
+        console.log("adding")
+         
+        state_arr.then(data => {
+          console.log(data);
+           data.forEach(s =>{
+             let state = s['state'];
+             let positive = s['positive'];
+             let recovered = s['recovered'];
+             let row = document.querySelector("tr.template").cloneNode(true);
+             row.classList.remove("template");
+             row.childNodes[1].textContent = state;
+             row.childNodes[1].classList.remove('template');
+             row.childNodes[3].textContent = positive;
+             row.childNodes[3].classList.remove('template');
+             row.childNodes[5].textContent = recovered;
+             row.childNodes[5].classList.remove('template');
+             document.querySelector("tbody").appendChild(row);
+           });
+        });
+      };
+      
+
      
 
 
@@ -163,10 +191,14 @@
         item.addEventListener("click", event => {
           hide();
           let id = item.getAttribute('aria-label');
-          console.log(id);
           let page = document.querySelector('#'+id);
           page.style.display = "block";
         })
+      });
+      
+      table_btn.addEventListener('click', () => {
+        console.log("here");
+        add_state_info();
       });
       
       
