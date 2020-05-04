@@ -62,6 +62,9 @@
           View the information in the form of a bar graph using the chart icon. Click on the location icon to <br>
           see weather in your area and detailed information related to the state you are in.
         </div>
+        <button class="mdc-button--raised" id="install">
+          <span class="mdc-button__label">Install Me!</span>
+        </button>
       </div>
 
       <div class="view" id="location">
@@ -121,6 +124,7 @@
       const table_btn = document.querySelector('button#data'); 
       const location_btn = document.querySelector('button#weather'); 
       const graph_btn = document.querySelector('button#graph');
+      const install_btn = document.querySelector('button#install');
       
       
       let data_table_arr = [[{label: 'States', type: 'string'},{label: 'Positive', type: 'number'}]];
@@ -156,6 +160,30 @@
                 recovered: s['recovered']
               }, 'state');
            })
+        });
+      
+      window.addEventListener('beforeinstallprompt', (event) => {
+      console.log('👍', 'beforeinstallprompt', event);
+      // Stash the event so it can be triggered later.
+      window.deferredPrompt = event;
+      });
+      
+      install_btn.addEventListener('click', () => {
+          console.log('👍', 'butInstall-clicked');
+          const promptEvent = window.deferredPrompt;
+          if (!promptEvent) {
+            // The deferred prompt isn't available.
+            return;
+          }
+          // Show the install prompt.
+          promptEvent.prompt();
+          // Log the result
+          promptEvent.userChoice.then((result) => {
+            console.log('👍', 'userChoice', result);
+            // Reset the deferred prompt variable, since
+            // prompt() can only be called once.
+            window.deferredPrompt = null;
+          });
         });
       
       // array of data from the db
