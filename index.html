@@ -96,10 +96,20 @@
       </div>
 
     </main> 
-
     <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service_worker.js')
+          .then(registration => {
+            console.log('Service Worker is registered', registration);
+          })
+          .catch(err => {
+            console.error('Registration failed:', err);
+          });
+        });
+      }
 
       mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('header.mdc-top-app-bar'));  
       document.querySelector("#home").style.display = "block";
@@ -110,6 +120,7 @@
       const table_btn = document.querySelector('button#data'); 
       const location_btn = document.querySelector('button#weather'); 
       const graph_btn = document.querySelector('button#graph');
+      
       
       let data_table_arr = [[{label: 'States', type: 'string'},{label: 'Positive', type: 'number'}]];
       
