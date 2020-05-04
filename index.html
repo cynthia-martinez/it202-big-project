@@ -43,8 +43,8 @@
         <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
           <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="home">home</button>       
           <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" id ="data" aria-label="table">table_chart</button>
-          <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="chart">show_chart</button>
-          <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="location">location_on</button>
+          <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" id="graph" aria-label="chart">show_chart</button>
+          <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" id="weather" aria-label="location">location_on</button>
         </section>
       </div>
     </header>
@@ -66,13 +66,7 @@
       <div class="view" id="location">
         <h2>Current Location Stats</h2>
         <div> Here you can view the weather in your area as well as detailed stats about Covid 19 in your state.</div>
-        <input list="countries" name="country" id="user-input">
-            <datalist id="countries">
-            </datalist>
-            <button class="mdc-button mdc-button--unelevated" id="add">  <span class="mdc-button__ripple"></span> Add Country </button>
-        <div id="added-countries">                             
-        </div>
-        <button class="mdc-button mdc-button--unelevated" id="graph">  <span class="mdc-button__ripple"></span> Chart Countries </button>
+        <p id="locError"></p>
         
         
       </div>
@@ -98,26 +92,26 @@
         </div>
       </div>
       <div class="view" id="chart">
-        CHART
+        <div id="regions_div" style="width: 900px; height: 500px;"></div>
       </div>
 
     </main> 
 
     <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
 
-      mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('header.mdc-top-app-bar'));
-      mdc.ripple.MDCRipple.attachTo(document.querySelector('button#add')); 
-      mdc.ripple.MDCRipple.attachTo(document.querySelector('button#graph')); 
-      
-      
+      mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('header.mdc-top-app-bar'));  
       document.querySelector("#home").style.display = "block";
 
       const nav_icons = document.querySelectorAll(".mdc-top-app-bar__action-item");      
       const api_endpoint = 'https://covidtracking.com/api/v1/states/current.json';
       const country_list = document.querySelector("datalist#countries");
       const table_btn = document.querySelector('button#data'); 
-      const graph_btn = document.querySelector('button#graph'); 
+      const location_btn = document.querySelector('button#weather'); 
+      const graph_btn = document.querySelector('button#graph');
+      
+      let data_table_arr = [[{label: 'States', type: 'string'},{label: 'Positive', type: 'number'}]];
       
       const hide = () => {
         document.querySelectorAll(".view").forEach(item => {
@@ -157,13 +151,75 @@
         .toArray();
       
       
+      // get current location
+      let l = document.querySelector("locError");
+      let lon = 0;
+      let lat = 0;
+      const get_pos = () => {
+        lon = position.coords.longitude;
+        lat = position.coords.latitude;
+      }
+      const get_location = () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(get_pos);
+          
+        } else {
+           l.textContent = "Geolocation is not supported.";
+        }
+      }
+  
+      google.charts.load('current', {
+        'packages':['geochart'],
+        // Note: you will need to get a mapsApiKey for your project.
+        // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+        'mapsApiKey': 'AIzaSyB1wYFNOWXOlds-5cmchC4bT8LOUlfHx48'
+      });
+      
+      const get_data_arr = () => {
+        state_arr.then(data => {
+          data.forEach(s=>{
+            let state = "US-"+s['state'];
+            let positive = s['positive'];
+            let a = [state,positive];
+            data_table_arr.push(a);
+            
+          });
+          var data = google.visualization.arrayToDataTable(data_table_arr);
+          console.log(data);
+
+          var options = {region: 'US', displayMode: 'regions',resolution: 'provinces'};
+
+          var chart = new google.visualization.GeoChart(document.querySelector('#regions_div'));
+
+          chart.draw(data, options);
+        })
+      };
+      
+      
+      test = [["State", "people"], ["US-IL", 1]];
+      
+      
+      function draw_regions_map() {
+        var data = google.visualization.arrayToDataTable(test);
+        console.log(data);
+
+        var options = {region: 'US', displayMode: 'regions',resolution: 'provinces'};
+
+        var chart = new google.visualization.GeoChart(document.querySelector('#regions_div'));
+
+        chart.draw(data, options);
+      }
+      
+      
+      
+      
+      
       // add dates with date as ID
       const add_state_info = () => {
         
         console.log("adding")
          
         state_arr.then(data => {
-          console.log(data);
            data.forEach(s =>{
              let state = s['state'];
              let positive = s['positive'];
@@ -197,10 +253,28 @@
       });
       
       table_btn.addEventListener('click', () => {
-        console.log("here");
+        //clear table
+        document.querySelectorAll('tbody tr').forEach(n =>{
+          if(n.classList.contains('template') == false){
+            n.remove()
+          }
+        });
         add_state_info();
       });
       
+      location_btn.addEventListener('click', () => {
+        get_location()
+      });
+      
+      graph_btn.addEventListener('click', () => {
+        console.log("here");
+        get_data_arr();
+      });
+      
+      
+      
+      
+
       
       
       
