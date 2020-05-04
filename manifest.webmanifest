@@ -1,0 +1,33 @@
+{
+  "short_name": "Covid-19 Data",
+  "name": "Covid-19 US Data Visualizer",
+  "description": "Information on COvid-19 Cases in US",
+  "start_url": "/index.html",
+  "background_color": "#3367D6",
+  "icons": [
+    {
+      "src": "images/icon-128x128.png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "images/icon-192x192.png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/icon-256x256.png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "images/icon-384x384.png",
+      "sizes": "384x384"
+    },
+    {
+      "src": "images/icon-512x512.png",
+      "sizes": "512x512"
+    }
+  ]
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#3367D6"
+}
+
